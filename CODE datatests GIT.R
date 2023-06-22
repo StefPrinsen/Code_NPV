@@ -289,8 +289,12 @@ regression_model <- lm(price_phosphorus ~ price_gas)
 print(regression_model)
 summary(regression_model)
 
+spearman_rank_regression <- cor.test(price_gas, price_phosphorus,  method = "spearman")
+print(spearman_rank_regression)
+
 #REGRESSION FROM LOG RETURNS
 price_gas_log <- diff(log(price_gas))
+View(price_gas_log)
 price_phosphorus_log <- diff(log(price_phosphorus))
 Regression_model_log <- lm(price_phosphorus_log ~ price_gas_log)
 print(Regression_model_log)
