@@ -53,12 +53,16 @@ print(p_gas_volatility)
 
 #phosphorus price data
 
-install.packages("readxl")
-library(readxl)
-
 column_types <- c("text", "numeric")
 
+#excel_url <- "https://github.com/StefPrinsen/Code_NPV/blob/a3887a58b89b658a13fb0e6a67b6647e02fa388b/P_phosphorus_NL.xlsx"
+
+#p_phosphorus_2 <- read_excel(excel_url)
+
+
 p_phosphorus <- read_excel("C:\\Users\\stefp\\Documents\\P_phosphorus_NL.xlsx", sheet = "P_phosphorus_NL", col_names = FALSE)
+View(p_phosphorus)
+
 
 library(stats)
 
@@ -66,7 +70,7 @@ col_names <- as.character(p_phosphorus[1, ])
 colnames(p_phosphorus) <- col_names
 
 p_phosphorus_3 <- p_phosphorus[-1, ]
-
+View(p_phosphorus_3)
 #transpose 
 
 p_phosphorus_3_T <- t(p_phosphorus_3)
@@ -166,7 +170,7 @@ npv <- numeric(nsim)
 for (i in 1:nsim) {
   npv[i] <- sum(cashflows[i, ] / (1 + discount_rate)^(1:t)) - p_HTC - p_precipitation
 }
-
+View(npv[256])
 # Print npv
 print(sd(npv))
 variance_NPV<-var(npv)
@@ -200,3 +204,4 @@ Certainty_equivalent_NPV <- c(`CE_NPV-0.1`, `CE_NPV-0.01`, `CE_NPV-0.001`, `CE_N
 risk_aversion_coefficient <- c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0, 1e-06,
                                1e-05, 1e-04, 1e-03, 1e-02, 1e-01)
 print(Certainty_equivalent_NPV)
+
