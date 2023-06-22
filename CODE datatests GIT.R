@@ -292,6 +292,23 @@ summary(regression_model)
 spearman_rank_regression <- cor.test(price_gas, price_phosphorus,  method = "spearman")
 print(spearman_rank_regression)
 
+#get log returns & calculate correlation again with these results NO CORRELATION WHEN USING LOG RETURNS
+price_gas_log_crisis <- c(2,	1.967968534,	2.047249059,	2.143940629,	2.049328685,	1.860047861,	1.712266884,	1.921879951,	1.788288044,	1.546150088,	1.497234078,	1.830662556,	1.988902441,	1.985940295,	2.246653149,	2.69752438,	2.554521883,	2.807347424,	2.867210919,	2.983302987,	2.589910906
+)
+price_phosphorus_log_crisis <- c(2,	2.013157675,	1.995213469,	2.013674632,	2.050774062,	2.057828184	,2.031878254,	2.034347216,	2.034347216,	2.023881664,	1.988698917,	1.972539857,	1.974239715,	2.021859193,	2.086264845,	2.105494127,	2.371953546,	2.427335022,	2.46963223,	2.491827397,	2.487339387
+
+)
+
+price_gas_log_return <- diff(price_gas_log_crisis)
+print(price_gas_log_return)
+price_phosphorus_log_return <- diff(price_phosphorus_log_crisis)
+print(price_phosphorus_log_return)
+
+
+regression_log_crisis <- lm(price_gas_log_return ~ price_phosphorus_log_return)
+print(regression_log_crisis)
+summary(regression_log_crisis)
+
 
 #TEST CORRELATION older data WITHOUT CRISIS
 start_date_old <- as.Date("31-12-2004")  # Assuming the start is in October 2017 (Q4)
@@ -368,7 +385,7 @@ price_gas_indexed_log <- c(2.000000006,	2.077484022,	2.149908891,	2.176481994,	2
 price_phosphorus_indexed_log <- c(2,	2.005320319,	2.011257139,	1.946572305,	2.292213321,	2.294936179,	2.119846889,	2.202137166,	2.23850596,	2.233532036,	2.178690165,	2.186758355,	2.206990643,	2.216735708
 
 )
-
+#NO CORRELATION WHEN USING LOG RETURNS
 price_gas_indexed_log_returns<- diff(price_gas_indexed_log)
 print(price_gas_indexed_log_returns)
 price_phosphorus_indexed_log_returns<- diff(price_phosphorus_indexed_log)
@@ -384,3 +401,31 @@ print(regression_model_indexed_log)
 summary(regression_model_indexed_log)
 
 
+
+#NEW REGRESSION TEST with longer DATASET & TEST FROM HARDAKER
+price_gas_1985_2004 <- c(28.08143998,	29.17763998,	20.97719998,	16.85447999,	17.42867999,	21.11543998,	24.86303998,	25.63739998,	24.72767998,	23.88347998,	24.39647998,	24.43139998,	24.65963998,	24.24815998,	23.95295998,	23.70671998,	22.96439998,	23.17319998,	24.48503998,	25.21511998,	24.26939998,	24.15563998,	22.25339998,	22.40063998, 23.81795998,	29.37671998,	35.34047997,	36.35279997,	34.34399997, 30.85199998,	34.45199997,	35.70479997,	33.76439997,	35.92799997,	38.62799997,	42.22799997,	49.53599996,	52.30799996,	58.42799995, 50.54399996
+
+
+                           
+)
+price_phosphate_1985_2004 <- c(77.8065,	77.9901,	79.0441,	75.3464,	70.3388,	69.2094,	70.5779, 70.0761,	71.5791,	72.2725,	73.8931,	67.8057,	68.7943,	69.3482,	69.8719,	67.4308,	70.7602,	72.1986,	73.3679,	74.3665,	74.5561,	75.4610,	76.1213,	76.8205,	76.6864,	76.7712,	78.0012,	79.4973,	79.5295,	77.8596,	78.8125,	80.7230,	85.7418,	91.9495,	89.7800,	88.0100,	90.0000,	90.6700,	91.9900,	94.2100
+
+                                  
+)
+#quick test for regression
+regression_1985_2004 <- lm(price_gas_1985_2004~price_phosphate_1985_2004)
+print(regression_1985_2004)
+summary(regression_1985_2004)
+
+#test for regression as displayed in hardaker chapter 4
+#first determine covariance
+covariance_gas_phosphate <- cov(price_gas_1985_2004, price_phosphate_1985_2004)
+print(covariance_gas_phosphate)
+#then determine sqrt of variance of gas * variance of phosphate
+variance_gas <- var(price_gas_1985_2004)
+print(variance_gas)
+variance_phosphate <-var(price_phosphate_1985_2004)
+print(variance_phosphate)
+#lastly divide cov by the sqrt of both variances multiplied and correlation is obtained
+correlation_gas_phosphate <- covariance_gas_phosphate*(variance_gas*variance_phosphate)^-0.5
+print(correlation_gas_phosphate)
