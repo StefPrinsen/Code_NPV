@@ -185,8 +185,6 @@ density <- density(npv)
 # Plot the PDF
 plot(density, main = "Probability Density Function of NPV", xlab = "NPV", ylab = "Density", xlim = c(min(-3000000), max(100000)))
 
-#risk premium
-#risk_premium_NPV <- 0.5*r*variance_NPV
 
 # Start a loop to compute certainty equivalents for all risk aversion coefficients
 for(r in c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0,
