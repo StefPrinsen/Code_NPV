@@ -231,7 +231,6 @@ print(jarque_bera_result_p_log)
 p_gas_correlation_test <- getSymbols("TTF=F", src="yahoo", from = "2000-09-01", to = "2023-01-01", auto.assign = FALSE)
 plot(p_gas_correlation_test)
 p_gas_correlation_test_quarterly <- to.quarterly(p_gas_correlation_test$`TTF=F.Close`, indexAt = "lastof", OHLC=FALSE)
-View(p_gas_correlation_test_quarterly)
 print(p_gas_correlation_test_quarterly)
 p_gas_correlation_test_quarterly_ts <- ts(p_gas_correlation_test_quarterly, start=c(2017,4), end=c(2022, 4), frequency = 4)
 print(p_gas_correlation_test_quarterly_ts)
@@ -251,7 +250,6 @@ print(p_phosphorus_correlation_T_num)
 plot(p_phosphorus_correlation_T_num)
 
 p_phosphorus_correlation_test_ts <- ts(p_phosphorus_correlation_T_num, start=c(2017,4), end=c(2022,4), frequency=4)
-View(p_phosphorus_correlation_test_ts)
 print(p_phosphorus_correlation_test_ts)
 
 
@@ -278,7 +276,6 @@ price_phosphorus <- c(99.7,	102.7668,	98.6072,	102.8892,	112.0648,	113.8999,	107
 #last 7 g years 176.4627931 498.3384302,	358.5270133,	641.7227319,	736.5647299,	962.2833843,	388.9653415
 # last 7 p years 121.6074 127.1128,	234.7733,	266.7044,	293.9865,	309.4016,	306.2207
 df <- data.frame(dates, price_gas, price_phosphorus)
-View(df)
 ggplot(df, aes(x = dates)) +
   geom_line(aes(y = price_gas, color = "gas")) +
   geom_line(aes(y = price_phosphorus, color = "phosphorus")) +

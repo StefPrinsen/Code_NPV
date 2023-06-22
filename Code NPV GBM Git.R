@@ -24,6 +24,7 @@ recovery_rate <-0.946          # in %
 p_recovered <- produced_milk*milk_to_sludge*p_content_sludge*recovery_rate/1000 #ton recovered phosphorus
 print(p_recovered)
 
+
 #gas price data
 library(quantmod)
 library(zoo)
