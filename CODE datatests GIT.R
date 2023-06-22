@@ -3,7 +3,7 @@ library(quantmod)
 library(zoo)
 library(xts)
 library(TTR)
-library(tidyverse)
+
 p_gas <- getSymbols("TTF=F", src="yahoo", from = "2000-09-01", to = "2023-06-02", auto.assign = FALSE)
 
 #tests for g
