@@ -142,7 +142,6 @@ gbm_p <- apply(gbm, 2, cumprod)
 ts.plot(gbm_p, gpars = list(col=rainbow(10)))
 
 
-
 gbm_g_t <- t(gbm_g)
 View(gbm_g_t)
 
