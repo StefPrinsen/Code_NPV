@@ -264,15 +264,13 @@ print(correlation_p_g_indexed)
 #plotting against eachother
 
 start_date <- as.Date("2017-10-01")  # Assuming the start is in October 2017 (Q4)
-end_date <- as.Date("2021-01-01")    # Assuming the end is in December 2022 (Q4)
+end_date <- as.Date("2022-12-31")    # Assuming the end is in December 2022 (Q4)
 dates <- seq(start_date, end_date, by = "quarter")
 
-price_gas <- c(100,	92.88990826,	111.4933741,	139.2966361,	112.0285423,	72.45158002,	51.55453619,	83.53720693,	61.41692151,	35.16819572,	31.42201835,	67.71151886,	97.47706422,	96.81447503		
+price_gas <- c(100,	92.88990826,	111.4933741,	139.2966361,	112.0285423,	72.45158002,	51.55453619,	83.53720693,	61.41692151,	35.16819572,	31.42201835,	67.71151886,	97.47706422,	96.81447503, 176.4627931, 498.3384302,	358.5270133,	641.7227319,	736.5647299,	962.2833843,	388.9653415
 )
-price_phosphorus <- c(99.7,	102.7668,	98.6072,	102.8892,	112.0648,	113.8999,	107.2935,	107.9052,	107.9052,	105.336,	97.1391,	93.5912,	93.95824,	104.8466
+price_phosphorus <- c(99.7,	102.7668,	98.6072,	102.8892,	112.0648,	113.8999,	107.2935,	107.9052,	107.9052,	105.336,	97.1391,	93.5912,	93.95824,	104.8466, 121.6074, 127.1128,	234.7733,	266.7044,	293.9865,	309.4016,	306.2207
 )
-
-
 #last 7 g years 176.4627931 498.3384302,	358.5270133,	641.7227319,	736.5647299,	962.2833843,	388.9653415
 # last 7 p years 121.6074 127.1128,	234.7733,	266.7044,	293.9865,	309.4016,	306.2207
 df <- data.frame(dates, price_gas, price_phosphorus)
@@ -286,10 +284,17 @@ ggplot(df, aes(x = price_gas, y = price_phosphorus)) +
   geom_point() + geom_smooth(method = "lm", se = FALSE) +
   labs(x = "indexed gas", y = "indexed phosphorus", title = "Time Series Comparison")
 
-#get regression & find significance
+#get regression & find significance regular prices
 regression_model <- lm(price_phosphorus ~ price_gas)
 print(regression_model)
 summary(regression_model)
+
+#REGRESSION FROM LOG RETURNS
+price_gas_log <- diff(log(price_gas))
+price_phosphorus_log <- diff(log(price_phosphorus))
+Regression_model_log <- lm(price_phosphorus_log ~ price_gas_log)
+print(Regression_model_log)
+summary(Regression_model_log)
 
 #TEST CORRELATION WITHOUT CRISIS
 start_date_old <- as.Date("31-12-2004")  # Assuming the start is in October 2017 (Q4)
@@ -300,8 +305,6 @@ price_gas_older <- c(39.99280058,	47.80417567,	56.47948164,	60.04319654,	61.6630
 )
 price_phosphorus_older <- c(93.30,	94.45,	95.75,	82.50,	182.85,	184.00,	122.95,	148.60,	161.58,	159.74,	140.79,	143.43,	150.27,	153.68
 )
-
-
 
 
 df_old <- data.frame(dates_old, price_gas_older, price_phosphorus_older)
@@ -321,6 +324,13 @@ regression_model <- lm(price_gas_older ~ price_phosphorus_older)
 print(regression_model)
 summary(regression_model)
 
+#REGRESSION LOG RETURNS 2004 to 2017 NO CORRELATION
+price_gas_older_log_returns<- diff(log(price_gas_older))
+price_phosphorus_older_log_returns <- diff(log(price_phosphorus_older))
+regression_model_log_older <- lm(price_gas_older_log_returns ~ price_phosphorus_older_log_returns)
+print(regression_model_log_older)
+summary(regression_model_log_older)
+
 
 
 #INDEXED
@@ -330,13 +340,8 @@ end_date_indexed <- as.Date("31-12-2017")    # Assuming the end is in December 2
 dates_indexed <- seq(start_date_indexed, end_date_indexed, by = "year")
 
 price_gas_indexed <- c(100.0000014,	119.5319549,	141.2241244,	150.1350157,	154.1854208,	156.7056728,	151.1251147,	156.2556278,	158.8658889,	175.7875813,	175.6075633,	171.4671492,	169.8469871,	164.9189943
-                     
-                     
-                     
 )
 price_phosphorus_indexed <- c(100,	101.2325831,	102.6259378,	88.4244373,	195.9807074,	197.2132905,	131.7792069,	159.2711683,	173.1832797,	171.2111468,	150.9003215,	153.7299035,	161.0610932,	164.71597
-                            
-                            
 )
 
 
@@ -356,10 +361,16 @@ ggplot(df_indexed, aes(x = price_gas_indexed, y = price_phosphorus_indexed)) +
   geom_point() + geom_smooth(method = "lm", se = FALSE) +
   labs(x = "gas", y = "phosphorus", title = "Time Series Comparison, no crisis & indexed")
 
-#get regression & find significance
+#get regression & find significance FOR REGULAR PRICES
 regression_model_indexed <- lm(price_gas_indexed ~ price_phosphorus_indexed)
 print(regression_model_indexed)
 summary(regression_model_indexed)
 
+#REGRESSION LOG RETURNS INDEXED PRICES 2004-2017 NO CORRELATION
+log_return_price_gas_indexed <- diff(log(price_gas_indexed))
+log_return_price_phosphorus_indexed <- diff(log(price_phosphorus_indexed))
+regression_model_indexed_log <- lm(log_return_price_gas_indexed ~ log_return_price_phosphorus_indexed)
+print(regression_model_indexed_log)
+summary(regression_model_indexed_log)
 
 
