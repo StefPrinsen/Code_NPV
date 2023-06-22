@@ -170,7 +170,7 @@ npv <- numeric(nsim)
 for (i in 1:nsim) {
   npv[i] <- sum(cashflows[i, ] / (1 + discount_rate)^(1:t)) - p_HTC - p_precipitation
 }
-View(npv[256])
+
 # Print npv
 print(sd(npv))
 variance_NPV<-var(npv)
