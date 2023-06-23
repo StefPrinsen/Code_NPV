@@ -97,22 +97,60 @@ print(p_phosphorus_average_returns)
 p_phosphorus_volatility <- sd(p_phosphorus_quarterly_return)*sqrt(4)
 print(p_phosphorus_volatility)
 
-#simulation of geometric brownian motion for gas
+
+#Creating correlated random variables
+correlation <- correlation_gas_phosphate
+
+#random uncorrelated variables
+
+
+set.seed(254)
+
+# Number of iterations and number of values
+iterations <- 1000
+num_values <- 15
+
+# Generate random values for the first matrix
+
+epsilon<-rnorm(t)
+View(epsilon)
+epsilon_gas_t <- t(epsilon_gas)
+View(epsilon_gas_t)
+# Generate correlated values for the second matrix
+correlated_matrix <- matrix(0, nrow = iterations, ncol = num_values)
+correlated_matrix[, 1] <- rnorm(iterations)  # First column is random
+
+# Generate remaining columns with correlation
+for (i in 2:num_values) {
+  correlated_matrix[, i] <- correlation * correlated_matrix[, i - 1] + sqrt(1 - correlation^2) * rnorm(iterations)
+}
+epsilon_phosphorus <- t(correlated_matrix)
+View(epsilon_gas)
+View(epsilon_phosphorus)
+correlation_g_p_random_matrix <-cor(epsilon_gas~epsilon_phosphorus)
 
 #GBM formula for gas
-set.seed(254)
+
 nsim <- 1000
 S0_g <- 33.795 #12-06-2023
 mu_g <- p_gas_average_returns
 sigma_g <- p_gas_volatility
 t = 15
 gbm <- matrix(ncol = nsim, nrow = t)
+View(gbm)
+set.seed(254)
+
+
+epsilon_gas <- t(matrix(rnorm(iterations * num_values), nrow = iterations))
+View(epsilon_gas)
+
 
 for (simu in 1:nsim) {
-  for (day in 2:t) {
-    epsilon <- rnorm(t)
     dt = 1 / t
-    gbm[1, simu] <- S0_g
+  gbm[1, simu] <- S0_g
+  epsilon <- epsilon_gas[, simu]
+  for (day in 2:t) {
+    
     gbm[day, simu] <- exp((mu_g - sigma_g * sigma_g / 2) * dt + sigma_g * epsilon[day] * sqrt(dt))
   }
 }
@@ -120,6 +158,8 @@ gbm_g <- apply(gbm, 2, cumprod)
 View(gbm_g)
 
 ts.plot(gbm_g, gpars = list(col=rainbow(10)))
+
+
 
 # GBM calculation of P
 set.seed(254)
@@ -132,7 +172,7 @@ gbm <- matrix(ncol = nsim, nrow = t)
 
 for (simu in 1:nsim) {
   for (day in 2:t) {
-    epsilon <- rnorm(t)
+    epsilon <- epsilon_phosphorus[, simu]
     dt = 1 / t
     gbm[1, simu] <- S0_p
     gbm[day, simu] <- exp((mu_p - sigma_p * sigma_p / 2) * dt + sigma_p * epsilon[day] * sqrt(dt))
@@ -148,6 +188,8 @@ View(gbm_g_t)
 
 gbm_p_t <- t(gbm_p)
 View(gbm_p_t)
+
+
 #NPV method 2
 
 cashflows <- matrix(0, nrow = nsim, ncol = t)
@@ -202,4 +244,4 @@ Certainty_equivalent_NPV <- c(`CE_NPV-0.1`, `CE_NPV-0.01`, `CE_NPV-0.001`, `CE_N
 risk_aversion_coefficient <- c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0, 1e-06,
                                1e-05, 1e-04, 1e-03, 1e-02, 1e-01)
 print(Certainty_equivalent_NPV)
-
+correlation_costs_gas_phosphorus <- cor(costs_of_gas ~ p_revenue)
