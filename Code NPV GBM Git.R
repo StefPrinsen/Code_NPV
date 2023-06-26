@@ -105,7 +105,7 @@ print(p_phosphorus_volatility)
 
 #GBM formula for gas
 
-nsim <- 10000
+nsim <- 1000
 S0_g <- 33.795 #12-06-2023
 mu_g <- p_gas_average_returns
 sigma_g <- p_gas_volatility
@@ -134,7 +134,7 @@ ts.plot(gbm_g, gpars = list(col=rainbow(10)))
 # GBM calculation of P
 set.seed(254)
 t <-15
-nsim <- 10000
+nsim <- 1000
 S0_p <- 250 #12-06-2023
 mu_p <- p_phosphorus_average_returns
 sigma_p <- p_phosphorus_volatility
@@ -237,3 +237,9 @@ risk_aversion_coefficient <- c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0
                                1e-05, 1e-04, 1e-03, 1e-02, 1e-01)
 print(Certainty_equivalent_NPV)
 
+
+#see what percentage is above 0
+percentage_above_zero <- 100 * sum(npv > 0) / length(npv)
+
+# Print the result
+print(percentage_above_zero)
