@@ -13,7 +13,7 @@ p_oxalate <- 0.927             # € per kg
 q_oxalate <-0.0473             # kg required per kg of sludge
 p_disposal_saving <- 0.245     # € per kg
 discount_rate <- 0.03          # %
-time_period <- 15              # years
+time_period <- 15             # years
 q_gas <- 0.000988              # in MWH per kg of processed sludge for a temperature of 200 C
 #p_gas_simulated               #simulated with GBM
 produced_milk <-100000         # tons
@@ -105,7 +105,7 @@ print(p_phosphorus_volatility)
 
 #GBM formula for gas
 
-nsim <- 1000
+nsim <- 10000
 S0_g <- 33.795 #12-06-2023
 mu_g <- p_gas_average_returns
 sigma_g <- p_gas_volatility
@@ -134,7 +134,7 @@ ts.plot(gbm_g, gpars = list(col=rainbow(10)))
 # GBM calculation of P
 set.seed(254)
 t <-15
-nsim <- 1000
+nsim <- 10000
 S0_p <- 250 #12-06-2023
 mu_p <- p_phosphorus_average_returns
 sigma_p <- p_phosphorus_volatility
@@ -228,18 +228,25 @@ for(r in c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0,
   
 }
 
-Certainty_equivalent_NPV <- c(`CE_NPV-0.1`, `CE_NPV-0.01`, `CE_NPV-0.001`, `CE_NPV-1e-04`,
+Certainty_equivalent_NPV <- c(`CE_NPV-0.1`,`CE_NPV-0.01`, `CE_NPV-0.001`, `CE_NPV-1e-04`,
                               `CE_NPV-1e-05`, `CE_NPV-1e-06`,`CE_NPV0`, `CE_NPV1e-06`,
-                              `CE_NPV1e-05`, `CE_NPV1e-04`, `CE_NPV0.001`, `CE_NPV0.01`,
-                              `CE_NPV0.1`)
+                              `CE_NPV1e-05`, `CE_NPV1e-04`, `CE_NPV0.001`, `CE_NPV0.01`, `CE_NPV0.1`
+                              )
 
-risk_aversion_coefficient <- c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0, 1e-06,
+risk_aversion_coefficient <- c(-1e-01,-1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0, 1e-06,
                                1e-05, 1e-04, 1e-03, 1e-02, 1e-01)
 print(Certainty_equivalent_NPV)
 
+as.numeric(Certainty_equivalent_NPV)
 
-#see what percentage is above 0
+plot(risk_aversion_coefficient, Certainty_equivalent_NPV)
+lines(risk_aversion_coefficient, Certainty_equivalent_NPV)
+plot(risk_aversion_coefficient, Certainty_equivalent_NPV, log = "y", type = "o", xlab = "Risk Aversion Coefficient", ylab = "Certainty Equivalent NPV", main = "Logarithmic Scale Plot")
+
+
+
+plot(Certainty_equivalent_NPV)
+#see what percentage of outcomes is positive
 percentage_above_zero <- 100 * sum(npv > 0) / length(npv)
 
-# Print the result
 print(percentage_above_zero)
