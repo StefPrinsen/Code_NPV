@@ -13,7 +13,7 @@ p_oxalate <- 0.927             # € per kg
 q_oxalate <-0.0473             # kg required per kg of sludge
 p_disposal_saving <- 0.245     # € per kg
 discount_rate <- 0.03          # %
-time_period <- 15             # years
+time_period <- 15              # years
 q_gas <- 0.000988              # in MWH per kg of processed sludge for a temperature of 200 C
 #p_gas_simulated               #simulated with GBM
 produced_milk <-100000         # tons
@@ -151,7 +151,7 @@ for (simu in 1:nsim) {
     dt = 1 / t
     dt_p = 1 / t_p
     gbm[1, simu] <- S0_p
-    gbm[year, simu] <- exp((mu_p - sigma_p * sigma_p / 2) * dt_p + (correlation*sqrt(dt)*epsilon_g[year] + sqrt(1-correlation^2)*sqrt(dt_p)*epsilon_p[year]))
+    gbm[year, simu] <- exp((mu_p - sigma_p * sigma_p / 2) * dt_p + sigma_p * (correlation*sqrt(dt)*epsilon_g[year] + sqrt(1-correlation^2)*sqrt(dt_p)*epsilon_p[year]))
   }
   }
 }
