@@ -56,10 +56,6 @@ print(p_gas_volatility)
 
 column_types <- c("text", "numeric")
 
-#excel_url <- "https://github.com/StefPrinsen/Code_NPV/blob/a3887a58b89b658a13fb0e6a67b6647e02fa388b/P_phosphorus_NL.xlsx"
-
-#p_phosphorus_2 <- read_excel(excel_url)
-
 
 p_phosphorus <- read_excel("C:\\Users\\stefp\\Documents\\P_phosphorus_NL.xlsx", sheet = "P_phosphorus_NL", col_names = FALSE)
 View(p_phosphorus)
@@ -97,73 +93,53 @@ print(p_phosphorus_average_returns)
 p_phosphorus_volatility <- sd(p_phosphorus_quarterly_return)*sqrt(4)
 print(p_phosphorus_volatility)
 
-
-#Creating correlated random variables
-
-
-
-
-#GBM formula for gas
-
-nsim <- 10000
-S0_g <- 33.795 #12-06-2023
+#GBMS IN 1 LOOP
+nsim <- 100
+S0_g <- 33.795 # 12-06-2023
 mu_g <- p_gas_average_returns
 sigma_g <- p_gas_volatility
-t = 15
-gbm <- matrix(ncol = nsim, nrow = t)
-set.seed(254)
+t <- 50
 
-
-
-
-for (simu in 1:nsim) {
-    dt = 1 / t
-  gbm[1, simu] <- S0_g
-  epsilon_g <- rnorm(t)
-  for (year in 2:t) {
-    
-    gbm[year, simu] <- exp((mu_g - sigma_g * sigma_g / 2) * dt + sigma_g * epsilon_g[year] * sqrt(dt))
-  }
-}
-gbm_g <- apply(gbm, 2, cumprod)
-gbm_g_t <- t(gbm_g)
-ts.plot(gbm_g, gpars = list(col=rainbow(10)))
-
-
-
-# GBM calculation of P
-set.seed(254)
-t <-15
-nsim <- 10000
-S0_p <- 250 #12-06-2023
+S0_p <- 250 # 12-06-2023
 mu_p <- p_phosphorus_average_returns
 sigma_p <- p_phosphorus_volatility
-t_p = 15
+t_p <- 50
 correlation <- correlation_gas_phosphate
 
-gbm <- matrix(ncol = nsim, nrow = t_p)
+gbm_g <- matrix(ncol = nsim, nrow = t)
+gbm_p <- matrix(ncol = nsim, nrow = t_p)
+set.seed(254)
 
 for (simu in 1:nsim) {
-  for (year in 2:t_p) {
-    for (year in 2:t){
-    epsilon_p <- rnorm(t_p)
-    epsilon_g <- rnorm(t)
-    dt = 1 / t
-    dt_p = 1 / t_p
-    gbm[1, simu] <- S0_p
-    gbm[year, simu] <- exp((mu_p - sigma_p * sigma_p / 2) * dt_p + sigma_p * (correlation*sqrt(dt)*epsilon_g[year] + sqrt(1-correlation^2)*sqrt(dt_p)*epsilon_p[year]))
+  dt_g <- 1 / t
+  dt_p <- 1 / t_p
+  gbm_g[1, simu] <- S0_g
+  gbm_p[1, simu] <- S0_p
+  
+  epsilon_g <- rnorm(t)
+  epsilon_p <- rnorm(t_p)
+  
+  for (year in 2:t) {
+    gbm_g[year, simu] <- exp((mu_g - sigma_g * sigma_g / 2) * dt_g + sigma_g * epsilon_g[year] * sqrt(dt_g))
   }
+  
+  for (year in 2:t_p) {
+    gbm_p[year, simu] <- exp((mu_p - sigma_p * sigma_p / 2) * dt_p + sigma_p * (correlation * sqrt(dt_g) * epsilon_g[year] + sqrt(1 - correlation^2) * sqrt(dt_p) * epsilon_p[year]))
   }
 }
-gbm_p <- apply(gbm, 2, cumprod)
 
+gbm_g <- apply(gbm_g, 2, cumprod)
+gbm_p <- apply(gbm_p, 2, cumprod)
+View(gbm_g)
+View(gbm_p)
+ts.plot(gbm_g, gpars = list(col=rainbow(10)))
 ts.plot(gbm_p, gpars = list(col=rainbow(10)))
 
+gbm_g_t <- t(gbm_g)
 
 gbm_p_t <- t(gbm_p)
 View(gbm_p_t)
 View(gbm_g_t)
-
 
 
 #NPV method 2
@@ -217,7 +193,8 @@ ggplot(data.frame(x = density$x, y = density$y), aes(x = x, y = y)) +
   labs(x = "Net Present Value", y = "Probability Density") +
   ggtitle("Probability Density Function of Net Present Value") +
   scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma)
+  scale_y_continuous(labels = scales::comma) +
+  xlim(-1.5e6, 150000)
  
 
 # Start a loop to compute certainty equivalents for all risk aversion coefficients
@@ -246,6 +223,7 @@ plot(risk_aversion_coefficient, Certainty_equivalent_NPV, log = "y", type = "o",
 
 
 plot(Certainty_equivalent_NPV)
+lines(Certainty_equivalent_NPV)
 #see what percentage of outcomes is positive
 percentage_above_zero <- 100 * sum(npv > 0) / length(npv)
 
