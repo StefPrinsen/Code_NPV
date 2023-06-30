@@ -11,19 +11,17 @@ p_phosphoric_acid <- 1.264     # € per kg
 q_phosphoric_acid <- 0.00719   # kg required per kg of sludge
 p_oxalate <- 0.927             # € per kg
 q_oxalate <-0.0473             # kg required per kg of sludge
-p_disposal_saving <- 0.245     # € per kg
+p_disposal_saving <- 0.245  # € per kg
 discount_rate <- 0.03          # %
-time_period <- 15              # years
 q_gas <- 0.000988              # in MWH per kg of processed sludge for a temperature of 200 C
 #p_gas_simulated               #simulated with GBM
 produced_milk <-100000         # tons
-milk_to_sludge <- 10           # amount of sludge in kg per ton of milk. 10 kg of sludge per ton of milk
+milk_to_sludge <- 10          # amount of sludge in kg per ton of milk. 10 kg of sludge per ton of milk
 p_content_sludge <-0.057       # kilo of phosphorus per kg of sludge
 recovery_rate <-0.946          # in %
 #p_phosphorus_simulated        # simulated with GBM
 p_recovered <- produced_milk*milk_to_sludge*p_content_sludge*recovery_rate/1000 #ton recovered phosphorus
 print(p_recovered)
-
 
 #gas price data
 library(quantmod)
@@ -41,7 +39,6 @@ p_gas_daily_returns <- dailyReturn(p_gas$`TTF=F.Close`, type ="log")
 p_gas_daily_returns_regular <- dailyReturn(p_gas$`TTF=F.Close`)
 plot(p_gas_daily_returns_regular)
 
-
 p_gas_average_returns <- mean(p_gas_daily_returns)*252
 print(p_gas_average_returns)
 
@@ -56,10 +53,8 @@ print(p_gas_volatility)
 
 column_types <- c("text", "numeric")
 
-
 p_phosphorus <- read_excel("C:\\Users\\stefp\\Documents\\P_phosphorus_NL.xlsx", sheet = "P_phosphorus_NL", col_names = FALSE)
 View(p_phosphorus)
-
 
 library(stats)
 
@@ -94,16 +89,16 @@ p_phosphorus_volatility <- sd(p_phosphorus_quarterly_return)*sqrt(4)
 print(p_phosphorus_volatility)
 
 #GBMS IN 1 LOOP
-nsim <- 100
+nsim <- 3
 S0_g <- 33.795 # 12-06-2023
 mu_g <- p_gas_average_returns
 sigma_g <- p_gas_volatility
-t <- 50
+t <- 15
 
-S0_p <- 250 # 12-06-2023
+S0_p <- 500 # 12-06-2023 If i use similar method to eurostat before, price is 640
 mu_p <- p_phosphorus_average_returns
 sigma_p <- p_phosphorus_volatility
-t_p <- 50
+t_p <- 15
 correlation <- correlation_gas_phosphate
 
 gbm_g <- matrix(ncol = nsim, nrow = t)
@@ -132,15 +127,18 @@ gbm_g <- apply(gbm_g, 2, cumprod)
 gbm_p <- apply(gbm_p, 2, cumprod)
 View(gbm_g)
 View(gbm_p)
-ts.plot(gbm_g, gpars = list(col=rainbow(10)))
-ts.plot(gbm_p, gpars = list(col=rainbow(10)))
+
+
+plot(gbm_g[,1], ylim(c(0,900)))
+lines(gbm_p)
+
+
 
 gbm_g_t <- t(gbm_g)
 
 gbm_p_t <- t(gbm_p)
 View(gbm_p_t)
 View(gbm_g_t)
-
 
 #NPV method 2
 
@@ -157,17 +155,12 @@ View(p_revenue)
 costs_of_gas<-gbm_g_t*q_gas*produced_milk*milk_to_sludge
 View(costs_of_gas)
 
-
 View(cashflows)
 # Calculate NPV for each simulation
 npv <- numeric(nsim)
 for (i in 1:nsim) {
   npv[i] <- sum(cashflows[i, ] / (1 + discount_rate)^(1:t)) - p_HTC - p_precipitation
 }
-
-
-
-
 
 # Print npv
 print(sd(npv))
@@ -176,7 +169,6 @@ print(sd(npv)^2)
 print(min(npv))
 print(max(npv))
 print(mean(npv))
-
 
 install.packages(scales)
 library(scales)
@@ -193,10 +185,8 @@ ggplot(data.frame(x = density$x, y = density$y), aes(x = x, y = y)) +
   labs(x = "Net Present Value", y = "Probability Density") +
   ggtitle("Probability Density Function of Net Present Value") +
   scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma) +
-  xlim(-1.5e6, 150000)
- 
-
+  scale_y_continuous(labels = scales::comma) 
+  
 # Start a loop to compute certainty equivalents for all risk aversion coefficients
 for(r in c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0,
            1e-06,  1e-05, 1e-04, 1e-03, 1e-02, 1e-01)){
@@ -220,11 +210,12 @@ plot(risk_aversion_coefficient, Certainty_equivalent_NPV)
 lines(risk_aversion_coefficient, Certainty_equivalent_NPV)
 plot(risk_aversion_coefficient, Certainty_equivalent_NPV, log = "y", type = "o", xlab = "Risk Aversion Coefficient", ylab = "Certainty Equivalent NPV", main = "Logarithmic Scale Plot")
 
-
-
 plot(Certainty_equivalent_NPV)
 lines(Certainty_equivalent_NPV)
 #see what percentage of outcomes is positive
 percentage_above_zero <- 100 * sum(npv > 0) / length(npv)
 
 print(percentage_above_zero)
+
+
+
