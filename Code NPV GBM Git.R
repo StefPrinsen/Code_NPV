@@ -11,12 +11,12 @@ p_phosphoric_acid <- 1.264     # € per kg
 q_phosphoric_acid <- 0.00719   # kg required per kg of sludge
 p_oxalate <- 0.927             # € per kg
 q_oxalate <-0.0473             # kg required per kg of sludge
-p_disposal_saving <- 0.245  # € per kg
-discount_rate <- 0.03          # %
+p_disposal_saving <-0.245  # € per kg
+discount_rate <- 0.03  # %
 q_gas <- 0.000988              # in MWH per kg of processed sludge for a temperature of 200 C
 #p_gas_simulated               #simulated with GBM
 produced_milk <-100000         # tons
-milk_to_sludge <- 10          # amount of sludge in kg per ton of milk. 10 kg of sludge per ton of milk
+milk_to_sludge <- 10           # amount of sludge in kg per ton of milk. 10 kg of sludge per ton of milk
 p_content_sludge <-0.057       # kilo of phosphorus per kg of sludge
 recovery_rate <-0.946          # in %
 #p_phosphorus_simulated        # simulated with GBM
@@ -89,8 +89,8 @@ p_phosphorus_volatility <- sd(p_phosphorus_quarterly_return)*sqrt(4)
 print(p_phosphorus_volatility)
 
 #GBMS IN 1 LOOP
-nsim <- 3
-S0_g <- 33.795 # 12-06-2023
+nsim <- 1000
+S0_g <- 37.65 # 01-07-2023
 mu_g <- p_gas_average_returns
 sigma_g <- p_gas_volatility
 t <- 15
@@ -128,11 +128,8 @@ gbm_p <- apply(gbm_p, 2, cumprod)
 View(gbm_g)
 View(gbm_p)
 
-
-plot(gbm_g[,1], ylim(c(0,900)))
-lines(gbm_p)
-
-
+ts.plot(gbm_g, gpars = list(col = rainbow(10)), ylim = c (0,800), main = "GBM Gas", ylab = "Price in €/MWh", xlab = "Time in years")
+ts.plot(gbm_p, gpars = list(col = rainbow(10)), ylim = c(0,800), main = "GBM Phosphorus", ylab = "Price in €/ton", xlab = "Time in years")
 
 gbm_g_t <- t(gbm_g)
 
@@ -146,7 +143,7 @@ cashflows <- matrix(0, nrow = nsim, ncol = t)
 for (i in 1:nsim) {
   for (j in 1:t) {
     # Calculate cashflow
-    cashflows <- gbm_p_t*p_recovered + milk_to_sludge*produced_milk*recovery_rate*p_disposal_saving - gbm_g_t*q_gas*produced_milk*milk_to_sludge - produced_milk*milk_to_sludge*p_sodium_hydroxide*q_sodium_hydroxide - produced_milk*milk_to_sludge*q_magnesium_chloride*p_magnesium_chloride - produced_milk*milk_to_sludge*p_phosphoric_acid*q_phosphoric_acid-produced_milk*milk_to_sludge*p_oxalate*q_oxalate
+    cashflows <- gbm_p_t*p_recovered + milk_to_sludge*produced_milk*p_disposal_saving - gbm_g_t*q_gas*produced_milk*milk_to_sludge - produced_milk*milk_to_sludge*p_sodium_hydroxide*q_sodium_hydroxide - produced_milk*milk_to_sludge*q_magnesium_chloride*p_magnesium_chloride - produced_milk*milk_to_sludge*p_phosphoric_acid*q_phosphoric_acid-produced_milk*milk_to_sludge*p_oxalate*q_oxalate
     
   }
 }
@@ -161,6 +158,7 @@ npv <- numeric(nsim)
 for (i in 1:nsim) {
   npv[i] <- sum(cashflows[i, ] / (1 + discount_rate)^(1:t)) - p_HTC - p_precipitation
 }
+
 
 # Print npv
 print(sd(npv))
