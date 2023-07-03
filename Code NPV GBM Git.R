@@ -11,12 +11,12 @@ p_phosphoric_acid <- 1.264     # € per kg
 q_phosphoric_acid <- 0.00719   # kg required per kg of sludge
 p_oxalate <- 0.927             # € per kg
 q_oxalate <-0.0473             # kg required per kg of sludge
-p_disposal_saving <-0.245  # € per kg
-discount_rate <- 0.03  # %
+p_disposal_saving <-0.245    # € per kg
+discount_rate <- 0.03         # %
 q_gas <- 0.000988              # in MWH per kg of processed sludge for a temperature of 200 C
 #p_gas_simulated               #simulated with GBM
 produced_milk <-100000         # tons
-milk_to_sludge <- 10           # amount of sludge in kg per ton of milk. 10 kg of sludge per ton of milk
+milk_to_sludge <- 10        # amount of sludge in kg per ton of milk. 10 kg of sludge per ton of milk
 p_content_sludge <-0.057       # kilo of phosphorus per kg of sludge
 recovery_rate <-0.946          # in %
 #p_phosphorus_simulated        # simulated with GBM
@@ -158,9 +158,17 @@ npv <- numeric(nsim)
 for (i in 1:nsim) {
   npv[i] <- sum(cashflows[i, ] / (1 + discount_rate)^(1:t)) - p_HTC - p_precipitation
 }
+print(mean(npv))
+#see what percentage of outcomes is positive
+percentage_above_zero <- 100 * sum(npv > 0) / length(npv)
+
+print(percentage_above_zero)
 
 
+  
+  
 # Print npv
+  
 print(sd(npv))
 variance_NPV<-var(npv)
 print(sd(npv)^2)
@@ -186,20 +194,20 @@ ggplot(data.frame(x = density$x, y = density$y), aes(x = x, y = y)) +
   scale_y_continuous(labels = scales::comma) 
   
 # Start a loop to compute certainty equivalents for all risk aversion coefficients
-for(r in c(-1e-01, -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0,
-           1e-06,  1e-05, 1e-04, 1e-03, 1e-02, 1e-01)){
+for(r in c( -1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0,
+           1e-06,  1e-05, 1e-04, 1e-03, 1e-02)){
   Certainty_equivalent_NPV <- mean(npv) - variance_NPV * r/2
   assign(paste("CE_NPV", r, sep = ""), Certainty_equivalent_NPV)
   
 }
 
-Certainty_equivalent_NPV <- c(`CE_NPV-0.1`,`CE_NPV-0.01`, `CE_NPV-0.001`, `CE_NPV-1e-04`,
+Certainty_equivalent_NPV <- c(`CE_NPV-0.01`, `CE_NPV-0.001`, `CE_NPV-1e-04`,
                               `CE_NPV-1e-05`, `CE_NPV-1e-06`,`CE_NPV0`, `CE_NPV1e-06`,
-                              `CE_NPV1e-05`, `CE_NPV1e-04`, `CE_NPV0.001`, `CE_NPV0.01`, `CE_NPV0.1`
+                              `CE_NPV1e-05`, `CE_NPV1e-04`, `CE_NPV0.001`, `CE_NPV0.01`
                               )
 
-risk_aversion_coefficient <- c(-1e-01,-1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0, 1e-06,
-                               1e-05, 1e-04, 1e-03, 1e-02, 1e-01)
+risk_aversion_coefficient <- c(-1e-02, -1e-03, -1e-04, -1e-05, -1e-06, 0, 1e-06,
+                               1e-05, 1e-04, 1e-03, 1e-02)
 print(Certainty_equivalent_NPV)
 
 as.numeric(Certainty_equivalent_NPV)
@@ -210,10 +218,27 @@ plot(risk_aversion_coefficient, Certainty_equivalent_NPV, log = "y", type = "o",
 
 plot(Certainty_equivalent_NPV)
 lines(Certainty_equivalent_NPV)
-#see what percentage of outcomes is positive
-percentage_above_zero <- 100 * sum(npv > 0) / length(npv)
-
-print(percentage_above_zero)
 
 
+Certainty_equivalent_NPV <- round(Certainty_equivalent_NPV, digits = 2)
 
+# Plot the risk aversion values as dots
+plot(risk_aversion_coefficient, Certainty_equivalent_NPV, pch = 19, col = "blue",
+     xlab = "Risk Aversion Coefficient", ylab = "Certainty Equivalent",
+     main = "Certainty Equivalents vs. Risk Aversion Coefficient")
+
+# Add a horizontal line at y=0
+abline(h = 0, col = "red", lty = 2)
+
+# Connect the dots with a blue line
+lines(risk_aversion_coefficient, Certainty_equivalent_NPV, col = "blue")
+
+# Add text labels for the risk aversion values
+text(risk_aversion_coefficient, Certainty_equivalent_NPV, labels = Certainty_equivalent_NPV,
+     pos = 3, cex = 0.8)
+
+# Rotate the y-axis labels horizontally
+par(las = 1)
+
+# Set y-axis tick labels to horizontal
+axis(2, las = 1, tck = -0.02)
